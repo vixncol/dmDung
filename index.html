@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo_MRC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-success">
+    <div class="container-fluid">
+        <a class="navbar-brand px-5 text-white" href="#"><h2>Máy đọc hiểu trả lời câu hỏi trắc nghiệm tiếng Việt</h2>
+        </a>
+        <!--        <div class="nav-item dropdown px-5">-->
+        <!--            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"-->
+        <!--               data-bs-toggle="dropdown" aria-expanded="false">-->
+        <!--                Dropdown-->
+        <!--            </a>-->
+        <!--            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">-->
+        <!--                <li><a class="dropdown-item" href="#">Action</a></li>-->
+        <!--                <li><a class="dropdown-item" href="#">Another action</a></li>-->
+        <!--                <li>-->
+        <!--                    <hr class="dropdown-divider">-->
+        <!--                </li>-->
+        <!--                <li><a class="dropdown-item" href="#">Something else here</a></li>-->
+        <!--            </ul>-->
+        <!--        </div>-->
+    </div>
+</nav>
+<div class="container mt-3 mx-5">
+
+
+    <form action="http://localhost:5000/index" method="GET">
+        <div class="mb-3 mt-3">
+            <label for="text">Ngữ cảnh:</label>
+            <textarea class="form-control" rows="10" cols="150" name="text"
+                      placeholder="Passage">{{dict_data['text']}}</textarea>
+        </div>
+
+        <div class="mb-3 mt-3">
+            <label for="question">Câu hỏi:</label>
+            <textarea class="form-control" rows="1" cols="150" name="question" placeholder="Question">{{dict_data['question']}} </textarea>
+        </div>
+        <div class="row align-items-start">
+            <div class="col">
+                <div class="mb-3 mt-3">
+                    <input type="radio" name="option" value="1"/> A. {{dict_data['option1']}}
+                    <input type="hidden" name="option1" value="{{dict_data['option1']}}">
+                </div>
+            </div>
+            <div class="col">
+                <div class="mb-3 mt-3">
+                    <input type="radio" name="option" value="2"/> B. {{dict_data['option2']}}
+                    <input type="hidden" name="option2" value="{{dict_data['option2']}}">
+                </div>
+            </div>
+            <div class="col">
+                <div class="mb-3 mt-3">
+                    <input type="radio" name="option" value="3"/> C. {{dict_data['option3']}}
+                    <input type="hidden" name="option3" value="{{dict_data['option3']}}">
+                </div>
+            </div>
+            <div class="col">
+                <div class="mb-3 mt-3">
+                    <input type="radio" name="option" value="4"/> D. {{dict_data['option4']}}
+                    <input type="hidden" name="option4" value="{{dict_data['option4']}}">
+                </div>
+            </div>
+        </div>
+
+
+        <div class="mb-3 mt-3">
+            <select class="form-select" id="option" aria-label="Default select example">
+                <option value="1" selected>Machine Learning co ban</option>
+                <option value="2">Deep learning</option>
+            </select>
+
+            <!--<label for="cars">Chọn bộ nhúng từ: </label>-->
+            <select name="model_embedd" id="model_embedd" multiple>
+                <option value="w2v_model">W2V</option>
+                <option value="w2v_c2v_model">W2V_C2V</option>
+                <option value="elmo_model">ELMo</option>
+                <option value="fast_model">FastText</option>
+                <option value="bert_base_model">Bert_base</option>
+                <option value="all">Mutil</option>
+            </select>
+
+        </div>
+
+
+    </form>
+
+    <div class="row align-items-start">
+        <div class="col">
+            <div class="mb-3 mt-3">
+                <button type="submit" id="answer" class="btn btn-success" data-bs-toggle="modal"
+                        data-bs-target="#ans_pred">Trả lời
+                </button>
+            </div>
+        </div>
+        <div class="col">
+            <div class="mb-3 mt-3">
+                <button type="submit" id="check_ans" class="btn btn-success" data-bs-toggle="modal"
+                        data-bs-target="#ans_truth">Câu trả lời đúng
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <form id="post-file" action="http://localhost:5000/index" method="POST">
+        <input type="file" name="inputfile" id="inputfile">
+        <!--textarea luu gia tri nhung khong hien thi tren man hinh-->
+        <textarea class="form-control" id="text" rows="10" cols="150" name="text" placeholder="Passage"
+                  style="visibility:hidden"></textarea>
+        <script type="text/javascript">
+        document.getElementById('inputfile')
+            .addEventListener('change', function() {
+
+            var fr=new FileReader();
+            fr.onload=function(){
+
+                document.getElementById('text')
+                        .textContent=fr.result;
+
+                document.getElementById("post-file").submit();
+               }
+
+            fr.readAsText(this.files[0]);
+
+        })
+
+
+
+
+        </script>
+    </form>
+</div>
+
+<div class="modal fade" id="ans_pred" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ans_predLabel">Đáp án máy đọc hiểu lựa chọn là: </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="ans_predmodal">
+                {{ans}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Đóng</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ans_truth" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ans_truthLabel">Đáp án đúng là: </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="ans_truthmodal">
+                {{dict_data['answer']}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Đóng</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+        document.getElementById('answer')
+            .addEventListener('change', function() {
+
+            var fr=new FileReader();
+            fr.onload=function(){
+                document.getElementById('text')
+                        .textContent=fr.result;
+            }
+
+            fr.readAsText(this.files[0]);
+
+        })
+
+</script>
+<script type="text/javascript">
+        document.getElementById('option')
+            .addEventListener('change',function(){
+                var optionSelected = $(this);
+                var valueSelected  = optionSelected.val();
+                alert("selected);
+
+            })
+</script>
+
+<input class="form-control" id="ans" name="ans" placeholder="ans" style="visibility:hidden">{{ans}}</input>
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+
+</body>
+
+</html>
